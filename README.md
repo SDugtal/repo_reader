@@ -62,13 +62,3 @@ Configure the application by setting environment variables in the `.env` file:
 - `OPENAI_API_KEY`: OpenAI API key for AI analysis
 - `ANTHROPIC_API_KEY`: Anthropic API key for AI analysis
 
-## Contributing
-
-1. Fork the repository
-2. Create a feature branch
-3. Make your changes
-4. Submit a pull request
-
-## License
-
-MIT License
