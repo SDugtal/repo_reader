@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>GitHub Repo Report</title>
+    <link rel="stylesheet" href="/static/css/style.css">
+</head>
+<body>
+    <div class="container">
+        <h1>Your GitHub Repository Report</h1>
+        
+        <div class="download-links">
+            <a href="/download/repos_summary.pdf" class="btn">Download PDF</a>
+            <a href="/download/repos_summary.docx" class="btn">Download Word</a>
+            <a href="/download/repos_summary.md" class="btn">Download Markdown</a>
+        </div>
+        
+        <div class="charts">
+            <h2>Language Distribution</h2>
+            <img src="/download/language_distribution.png" alt="Language Distribution">
+            
+            <h2>Activity Timeline</h2>
+            <img src="/download/activity_timeline.png" alt="Activity Timeline">
+        </div>
+        
+        <div class="report-content">
+            {{ report_content|safe }}
+        </div>
+    </div>
+</body>
+</html>
