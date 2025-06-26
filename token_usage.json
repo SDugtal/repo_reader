@@ -1,0 +1,24 @@
+{
+  "daily_usage": {
+    "2025-06-26": {
+      "github_api_calls": 210,
+      "huggingface_api_calls": 4,
+      "huggingface_tokens_used": 949,
+      "total_cost": 0.0001898
+    }
+  },
+  "monthly_usage": {
+    "2025-06": {
+      "github_api_calls": 210,
+      "huggingface_api_calls": 4,
+      "huggingface_tokens_used": 949,
+      "total_cost": 0.0001898
+    }
+  },
+  "total_usage": {
+    "github_api_calls": 210,
+    "huggingface_api_calls": 4,
+    "huggingface_tokens_used": 949,
+    "total_cost": 0.0001898
+  }
+}

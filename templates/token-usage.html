@@ -1,0 +1,32 @@
+<!-- Token Usage Component (to be included in main template) -->
+<div class="bg-white rounded-lg shadow-md p-6 mb-6">
+    <h2 class="text-2xl font-bold text-gray-800 mb-4">
+        <i class="fas fa-chart-bar mr-2"></i>API Usage Statistics
+    </h2>
+    <div id="tokenUsage" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+        <!-- Token usage stats will be populated here -->
+    </div>
+    
+    <!-- Rate Limit Warning -->
+    <div id="rateLimitWarning" class="hidden mt-4 p-4 bg-yellow-50 border border-yellow-200 rounded-lg">
+        <div class="flex">
+            <i class="fas fa-exclamation-triangle text-yellow-400 mr-3 mt-1"></i>
+            <div>
+                <h4 class="text-yellow-800 font-medium">Rate Limit Warning</h4>
+                <p class="text-yellow-700 mt-1">You're approaching your API rate limits. Consider adding API tokens for higher limits.</p>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Cost Estimate -->
+    <div class="mt-4 p-4 bg-blue-50 border border-blue-200 rounded-lg">
+        <h4 class="text-blue-800 font-medium mb-2">
+            <i class="fas fa-dollar-sign mr-2"></i>Estimated API Costs
+        </h4>
+        <p id="costEstimate" class="text-blue-700">Calculating...</p>
+        <p class="text-sm text-blue-600 mt-1">
+            <i class="fas fa-info-circle mr-1"></i>
+            Estimates are approximate and may vary based on actual API pricing
+        </p>
+    </div>
+</div>

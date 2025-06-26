@@ -1,0 +1,357 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>GitHub Repo Reader</title>
+    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+</head>
+<body class="bg-gray-50 min-h-screen">
+    <div class="container mx-auto px-4 py-8">
+        <!-- Header -->
+        <div class="text-center mb-8">
+            <h1 class="text-4xl font-bold text-gray-800 mb-2">
+                <i class="fab fa-github mr-3"></i>GitHub Repo Reader
+            </h1>
+            <p class="text-gray-600">Analyze GitHub repositories with AI-powered insights</p>
+        </div>
+
+        <!-- Input Form -->
+        <div class="max-w-2xl mx-auto mb-8">
+            <div class="bg-white rounded-lg shadow-md p-6">
+                <form id="analyzeForm" class="space-y-4">
+                    <div>
+                        <label for="githubUrl" class="block text-sm font-medium text-gray-700 mb-2">
+                            GitHub Repository URL
+                        </label>
+                        <div class="relative">
+                            <input 
+                                type="url" 
+                                id="githubUrl" 
+                                name="githubUrl"
+                                placeholder="https://github.com/username/repository"
+                                class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                                required
+                            >
+                            <i class="fas fa-link absolute right-3 top-3 text-gray-400"></i>
+                        </div>
+                    </div>
+                    
+                    <button 
+                        type="submit" 
+                        id="analyzeBtn"
+                        class="w-full bg-blue-600 text-white py-3 px-6 rounded-lg hover:bg-blue-700 transition duration-200 font-medium"
+                    >
+                        <i class="fas fa-search mr-2"></i>
+                        Analyze Repository
+                    </button>
+                </form>
+            </div>
+        </div>
+
+        <!-- Loading State -->
+        <div id="loadingState" class="hidden text-center py-8">
+            <div class="inline-block animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
+            <p class="mt-2 text-gray-600">Analyzing repository...</p>
+        </div>
+
+        <!-- Error State -->
+        <div id="errorState" class="hidden max-w-2xl mx-auto">
+            <div class="bg-red-50 border border-red-200 rounded-lg p-4">
+                <div class="flex">
+                    <i class="fas fa-exclamation-triangle text-red-400 mr-3 mt-1"></i>
+                    <div>
+                        <h3 class="text-red-800 font-medium">Analysis Failed</h3>
+                        <p id="errorMessage" class="text-red-600 mt-1"></p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Results -->
+        <div id="results" class="hidden">
+            <!-- Repository Info -->
+            <div class="bg-white rounded-lg shadow-md p-6 mb-6">
+                <h2 class="text-2xl font-bold text-gray-800 mb-4">
+                    <i class="fas fa-info-circle mr-2"></i>Repository Information
+                </h2>
+                <div id="repoInfo" class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <!-- Repository details will be populated here -->
+                </div>
+            </div>
+
+            <!-- Add this after the Repository Info section and before File Analysis -->
+            <!-- Token Usage Statistics -->
+            <div class="bg-white rounded-lg shadow-md p-6 mb-6">
+                <h2 class="text-2xl font-bold text-gray-800 mb-4">
+                    <i class="fas fa-chart-bar mr-2"></i>API Usage Statistics
+                </h2>
+                <div id="tokenUsage" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                    <!-- Token usage stats will be populated here -->
+                </div>
+                
+                <!-- Rate Limit Warning -->
+                <div id="rateLimitWarning" class="hidden mt-4 p-4 bg-yellow-50 border border-yellow-200 rounded-lg">
+                    <div class="flex">
+                        <i class="fas fa-exclamation-triangle text-yellow-400 mr-3 mt-1"></i>
+                        <div>
+                            <h4 class="text-yellow-800 font-medium">Rate Limit Warning</h4>
+                            <p class="text-yellow-700 mt-1">You're approaching your API rate limits. Consider adding API tokens for higher limits.</p>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Cost Estimate -->
+                <div class="mt-4 p-4 bg-blue-50 border border-blue-200 rounded-lg">
+                    <h4 class="text-blue-800 font-medium mb-2">
+                        <i class="fas fa-dollar-sign mr-2"></i>Estimated API Costs
+                    </h4>
+                    <p id="costEstimate" class="text-blue-700">Calculating...</p>
+                    <p class="text-sm text-blue-600 mt-1">
+                        <i class="fas fa-info-circle mr-1"></i>
+                        Estimates are approximate and may vary based on actual API pricing
+                    </p>
+                </div>
+            </div>
+
+            <!-- File Analysis -->
+            <div class="bg-white rounded-lg shadow-md p-6 mb-6">
+                <h2 class="text-2xl font-bold text-gray-800 mb-4">
+                    <i class="fas fa-code mr-2"></i>Code Analysis
+                </h2>
+                <div id="fileAnalysis">
+                    <!-- File analysis results will be populated here -->
+                </div>
+            </div>
+
+            <!-- Recent Commits -->
+            <div class="bg-white rounded-lg shadow-md p-6 mb-6">
+                <h2 class="text-2xl font-bold text-gray-800 mb-4">
+                    <i class="fas fa-history mr-2"></i>Recent Commits
+                </h2>
+                <div id="commits">
+                    <!-- Commits will be populated here -->
+                </div>
+            </div>
+
+            <!-- Contributors -->
+            <div class="bg-white rounded-lg shadow-md p-6 mb-6">
+                <h2 class="text-2xl font-bold text-gray-800 mb-4">
+                    <i class="fas fa-users mr-2"></i>Top Contributors
+                </h2>
+                <div id="contributors">
+                    <!-- Contributors will be populated here -->
+                </div>
+            </div>
+
+            <!-- Export Options -->
+            <div class="bg-white rounded-lg shadow-md p-6">
+                <h2 class="text-2xl font-bold text-gray-800 mb-4">
+                    <i class="fas fa-download mr-2"></i>Export Report
+                </h2>
+                <div class="flex space-x-4">
+                    <a href="/export/md" class="bg-green-600 text-white px-6 py-3 rounded-lg hover:bg-green-700 transition duration-200">
+                        <i class="fas fa-file-alt mr-2"></i>Download Markdown
+                    </a>
+                    <a href="/export/docx" class="bg-blue-600 text-white px-6 py-3 rounded-lg hover:bg-blue-700 transition duration-200">
+                        <i class="fas fa-file-word mr-2"></i>Download Document
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        document.getElementById('analyzeForm').addEventListener('submit', async function(e) {
+            e.preventDefault();
+            
+            const githubUrl = document.getElementById('githubUrl').value;
+            const loadingState = document.getElementById('loadingState');
+            const errorState = document.getElementById('errorState');
+            const results = document.getElementById('results');
+            const analyzeBtn = document.getElementById('analyzeBtn');
+            
+            // Reset states
+            loadingState.classList.remove('hidden');
+            errorState.classList.add('hidden');
+            results.classList.add('hidden');
+            analyzeBtn.disabled = true;
+            analyzeBtn.innerHTML = '<i class="fas fa-spinner fa-spin mr-2"></i>Analyzing...';
+            
+            try {
+                const response = await fetch('/analyze', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({ github_url: githubUrl })
+                });
+                
+                const data = await response.json();
+                
+                if (!response.ok) {
+                    throw new Error(data.error || 'Analysis failed');
+                }
+                
+                // Populate results
+                populateResults(data);
+                results.classList.remove('hidden');
+                
+            } catch (error) {
+                document.getElementById('errorMessage').textContent = error.message;
+                errorState.classList.remove('hidden');
+            } finally {
+                loadingState.classList.add('hidden');
+                analyzeBtn.disabled = false;
+                analyzeBtn.innerHTML = '<i class="fas fa-search mr-2"></i>Analyze Repository';
+            }
+        });
+        
+        function populateResults(data) {
+            // Populate repository info
+            const repoInfo = document.getElementById('repoInfo');
+            const repo = data.repo_info;
+            repoInfo.innerHTML = `
+                <div class="space-y-2">
+                    <h3 class="font-semibold text-lg">${repo.full_name}</h3>
+                    <p class="text-gray-600">${repo.description}</p>
+                    <div class="flex flex-wrap gap-2 mt-2">
+                        <span class="bg-blue-100 text-blue-800 px-2 py-1 rounded text-sm">${repo.language}</span>
+                        <span class="bg-yellow-100 text-yellow-800 px-2 py-1 rounded text-sm">⭐ ${repo.stars}</span>
+                        <span class="bg-green-100 text-green-800 px-2 py-1 rounded text-sm">🍴 ${repo.forks}</span>
+                    </div>
+                </div>
+                <div class="space-y-2">
+                    <p><strong>Size:</strong> ${repo.size} KB</p>
+                    <p><strong>License:</strong> ${repo.license}</p>
+                    <p><strong>Created:</strong> ${new Date(repo.created_at).toLocaleDateString()}</p>
+                    <p><strong>Updated:</strong> ${new Date(repo.updated_at).toLocaleDateString()}</p>
+                </div>
+            `;
+            
+            // Populate token usage statistics
+            const tokenUsage = document.getElementById('tokenUsage');
+            const usage = data.token_usage;
+            
+            tokenUsage.innerHTML = `
+                <div class="bg-gray-50 p-4 rounded-lg">
+                    <div class="flex items-center justify-between mb-2">
+                        <h4 class="font-semibold text-gray-800">GitHub API</h4>
+                        <i class="fab fa-github text-gray-600"></i>
+                    </div>
+                    <p class="text-2xl font-bold text-blue-600">${usage.github_api_calls}</p>
+                    <p class="text-sm text-gray-600">API Calls Made</p>
+                    <div class="mt-2">
+                        <p class="text-xs text-gray-500">
+                            Remaining: ${usage.github_rate_limit_remaining}
+                        </p>
+                        ${usage.github_rate_limit_reset ? 
+                            `<p class="text-xs text-gray-500">
+                                Resets: ${new Date(usage.github_rate_limit_reset).toLocaleTimeString()}
+                            </p>` : ''
+                        }
+                    </div>
+                </div>
+                
+                <div class="bg-gray-50 p-4 rounded-lg">
+                    <div class="flex items-center justify-between mb-2">
+                        <h4 class="font-semibold text-gray-800">Hugging Face AI</h4>
+                        <i class="fas fa-robot text-gray-600"></i>
+                    </div>
+                    <p class="text-2xl font-bold text-green-600">${usage.huggingface_api_calls}</p>
+                    <p class="text-sm text-gray-600">API Calls Made</p>
+                    <p class="text-xs text-gray-500 mt-1">
+                        Tokens Used: ${usage.huggingface_tokens_used.toLocaleString()}
+                    </p>
+                </div>
+                
+                <div class="bg-gray-50 p-4 rounded-lg">
+                    <div class="flex items-center justify-between mb-2">
+                        <h4 class="font-semibold text-gray-800">Total Files</h4>
+                        <i class="fas fa-file-code text-gray-600"></i>
+                    </div>
+                    <p class="text-2xl font-bold text-purple-600">${data.total_files_analyzed}</p>
+                    <p class="text-sm text-gray-600">Files Analyzed</p>
+                    <p class="text-xs text-gray-500 mt-1">
+                        AI-Powered: ${data.file_analysis.filter(f => f.tokens_used > 0).length}
+                    </p>
+                </div>
+            `;
+            
+            // Show rate limit warning if approaching limits
+            const rateLimitWarning = document.getElementById('rateLimitWarning');
+            if (usage.github_rate_limit_remaining < 100) {
+                rateLimitWarning.classList.remove('hidden');
+            }
+            
+            // Update cost estimate
+            const costEstimate = document.getElementById('costEstimate');
+            costEstimate.innerHTML = `
+                <span class="text-lg font-semibold">$${usage.total_cost_estimate.toFixed(4)}</span>
+                <span class="text-sm ml-2">for this analysis</span>
+                <div class="mt-1 text-sm">
+                    <span class="text-gray-600">GitHub API: Free</span> • 
+                    <span class="text-gray-600">AI Analysis: $${(usage.total_cost_estimate).toFixed(4)}</span>
+                </div>
+            `;
+            
+            // Update file analysis to show token usage per file
+            const fileAnalysis = document.getElementById('fileAnalysis');
+            if (data.file_analysis && data.file_analysis.length > 0) {
+                fileAnalysis.innerHTML = data.file_analysis.map(file => `
+                    <div class="border-l-4 border-blue-500 pl-4 mb-4">
+                        <div class="flex justify-between items-start">
+                            <div class="flex-1">
+                                <h4 class="font-semibold text-gray-800">${file.file}</h4>
+                                <p class="text-gray-600 mt-1">${file.summary}</p>
+                                <p class="text-sm text-gray-500 mt-1">Path: ${file.path}</p>
+                            </div>
+                            <div class="ml-4 text-right">
+                                <span class="inline-block bg-blue-100 text-blue-800 px-2 py-1 rounded text-xs">
+                                    ${file.tokens_used > 0 ? `${file.tokens_used} tokens` : 'Rule-based'}
+                                </span>
+                                <p class="text-xs text-gray-500 mt-1">${(file.size / 1024).toFixed(1)} KB</p>
+                            </div>
+                        </div>
+                    </div>
+                `).join('');
+            } else {
+                fileAnalysis.innerHTML = '<p class="text-gray-500">No code files analyzed.</p>';
+            }
+            
+            // Populate commits
+            const commits = document.getElementById('commits');
+            if (data.commits && data.commits.length > 0) {
+                commits.innerHTML = data.commits.map(commit => `
+                    <div class="flex items-start space-x-3 mb-3 p-3 bg-gray-50 rounded">
+                        <code class="bg-gray-200 px-2 py-1 rounded text-sm">${commit.sha}</code>
+                        <div class="flex-1">
+                            <p class="font-medium">${commit.message}</p>
+                            <p class="text-sm text-gray-600">by ${commit.author} on ${new Date(commit.date).toLocaleDateString()}</p>
+                        </div>
+                    </div>
+                `).join('');
+            } else {
+                commits.innerHTML = '<p class="text-gray-500">No recent commits found.</p>';
+            }
+            
+            // Populate contributors
+            const contributors = document.getElementById('contributors');
+            if (data.contributors && data.contributors.length > 0) {
+                contributors.innerHTML = data.contributors.map(contributor => `
+                    <div class="flex items-center space-x-3 mb-3 p-3 bg-gray-50 rounded">
+                        <img src="${contributor.avatar_url}" alt="${contributor.login}" class="w-10 h-10 rounded-full">
+                        <div>
+                            <p class="font-medium">${contributor.login}</p>
+                            <p class="text-sm text-gray-600">${contributor.contributions} contributions</p>
+                        </div>
+                    </div>
+                `).join('');
+            } else {
+                contributors.innerHTML = '<p class="text-gray-500">No contributors found.</p>';
+            }
+        }
+    </script>
+</body>
+</html>

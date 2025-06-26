@@ -1,0 +1,50 @@
+{
+  "validation": {
+    "github": {
+      "valid": true,
+      "configured": true,
+      "rate_limit": {
+        "limit": 5000,
+        "remaining": 5000,
+        "reset": 1750947536,
+        "reset_time": "2025-06-26T19:48:56"
+      },
+      "permissions": [
+        "public_repo",
+        "public_repo"
+      ],
+      "user_info": {
+        "login": "SDugtal",
+        "name": "Shirshak dugtal",
+        "email": null,
+        "type": "User"
+      },
+      "errors": [],
+      "recommendations": []
+    },
+    "huggingface": {
+      "valid": false,
+      "configured": true,
+      "user_info": {},
+      "inference_access": false,
+      "model_access": [],
+      "errors": [
+        "Authentication failed: 401"
+      ],
+      "recommendations": []
+    },
+    "overall_status": "good",
+    "recommendations": [
+      "\u2705 GitHub token working. Add Hugging Face token for AI features."
+    ],
+    "timestamp": "2025-06-26T18:48:58.588960"
+  },
+  "rotation": {
+    "github_expiry": null,
+    "hf_expiry": null,
+    "rotation_needed": false,
+    "recommendations": [
+      "Consider setting expiration date for GitHub token"
+    ]
+  }
+}
