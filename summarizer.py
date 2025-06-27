@@ -1,4 +1,4 @@
-import requests
+import google.generativeai as genai
 import os
 from typing import Optional, Dict, Tuple
 from dotenv import load_dotenv
@@ -9,14 +9,19 @@ load_dotenv(dotenv_path=Path(__file__).parent / ".env")
 
 class CodeSummarizer:
     def __init__(self):
-        self.hf_token = os.environ.get('HUGGING_FACE_TOKEN')
-        self.headers = {}
-
-        if self.hf_token and self.hf_token != 'your_hugging_face_token_here':
-            self.headers['Authorization'] = f'Bearer {self.hf_token}'
-            print("✅ Authorization header set.")
+        self.gemini_api_key = os.environ.get('GEMINI_API_KEY')
+        self.model = None
+        
+        if self.gemini_api_key and self.gemini_api_key != 'your_gemini_api_key_here':
+            try:
+                genai.configure(api_key=self.gemini_api_key)
+                self.model = genai.GenerativeModel('gemini-1.5-flash')
+                print("✅ Gemini API configured successfully.")
+            except Exception as e:
+                print(f"❌ Failed to configure Gemini API: {e}")
+                self.model = None
         else:
-            print("❌ Hugging Face token missing or invalid.")
+            print("❌ Gemini API key missing or invalid.")
 
     def is_code_file(self, filename: str) -> bool:
         code_extensions = {
@@ -36,7 +41,7 @@ class CodeSummarizer:
         }
 
         try:
-            if self.hf_token:
+            if self.model:
                 ai_summary, ai_usage = self._ai_summarize(code_content, filename)
                 if ai_summary:
                     usage_info.update(ai_usage)
@@ -46,7 +51,8 @@ class CodeSummarizer:
             summary = self._rule_based_summary(code_content, filename)
             return summary, usage_info
 
-        except Exception:
+        except Exception as e:
+            print(f"❌ Error in summarize_code: {e}")
             summary = self._rule_based_summary(code_content, filename)
             return summary, usage_info
 
@@ -54,77 +60,70 @@ class CodeSummarizer:
         usage_info = {
             'api_calls': 0,
             'tokens_used': 0,
-            'model_used': 'bigcode/starcoder'
+            'model_used': 'gemini-1.5-flash'
         }
 
         try:
-            model_url = self._get_best_model_for_file(filename)
             prompt = self._create_analysis_prompt(code_content, filename)
+            
+            # Estimate token usage (Gemini counts tokens differently, but this is an approximation)
+            usage_info['tokens_used'] = len(prompt) // 4
 
-            code_content = code_content[:1000] + "..." if len(code_content) > 1000 else code_content
-            usage_info['tokens_used'] = len(code_content) // 4
-
-            payload = {
-                "inputs": prompt,
-                "parameters": {
-                    "max_length": 150,
-                    "min_length": 30,
-                    "do_sample": False,
-                    "temperature": 0.1
-                }
-            }
-
-            print("🔁 Sending request to Hugging Face...")
-            response = requests.post(model_url, headers=self.headers, json=payload, timeout=10)
+            print("🔁 Sending request to Gemini...")
+            response = self.model.generate_content(prompt)
             usage_info['api_calls'] = 1
 
-            if response.status_code == 200:
-                result = response.json()
-                summary = self._extract_summary_from_response(result)
+            if response and response.text:
+                summary = self._clean_summary(response.text.strip())
                 if summary:
                     return summary, usage_info
             else:
-                print(f"❌ Hugging Face API returned status {response.status_code}: {response.text}")
+                print("❌ Gemini API returned empty response")
 
             return None, usage_info
 
         except Exception as e:
-            print("❌ Exception in _ai_summarize:", e)
+            print(f"❌ Exception in _ai_summarize: {e}")
             return None, usage_info
-        def _get_best_model_for_file(self, filename: str) -> str:
-            return "https://api-inference.huggingface.co/models/bigcode/santacoder"
-
-
 
     def _create_analysis_prompt(self, code_content: str, filename: str) -> str:
         file_type = self._get_file_type(filename)
-        return f"""Analyze this {file_type} code and provide a concise summary:
+        
+        # Truncate code if too long to avoid token limits
+        if len(code_content) > 8000:
+            code_content = code_content[:8000] + "\n... (truncated)"
+        
+        return f"""Analyze this {file_type} code and provide a concise, technical summary in 1-2 sentences.
 
 File: {filename}
 Code:
 {code_content}
 
-Summary: This code"""
+Please provide a brief summary that describes:
+1. What this code does (main purpose/functionality)
+2. Key components (classes, functions, modules used)
+3. Any notable patterns or complexity
 
-    def _extract_summary_from_response(self, response_data) -> Optional[str]:
-        try:
-            if isinstance(response_data, list) and response_data:
-                first = response_data[0]
-                for key in ['summary_text', 'generated_text', 'text']:
-                    if key in first:
-                        return self._clean_summary(first[key].strip())
-            return None
-        except Exception:
-            return None
+Keep the summary concise and technical, starting directly with the description (no "This code" prefix)."""
 
     def _clean_summary(self, summary: str) -> str:
-        for prefix in ["This code", "The code", "Summary:", "This file", "The file"]:
-            if summary.startswith(prefix):
+        # Remove common prefixes
+        for prefix in ["This code", "The code", "Summary:", "This file", "The file", "This script", "The script"]:
+            if summary.lower().startswith(prefix.lower()):
                 summary = summary[len(prefix):].strip()
+                break
+        
+        # Remove leading colons or dashes
+        summary = summary.lstrip(':- ').strip()
+        
+        # Ensure proper capitalization
         if summary and not summary[0].isupper():
             summary = summary[0].upper() + summary[1:]
+        
+        # Ensure it ends with a period
         if summary and not summary.endswith('.'):
             summary += '.'
+        
         return summary
 
     def _rule_based_summary(self, code_content: str, filename: str) -> str:
@@ -134,6 +133,7 @@ Summary: This code"""
         analysis = self._analyze_code_structure(lines, file_type)
 
         summary = [f"This {file_type} file contains {total_lines} lines of code"]
+        
         if analysis['functions']:
             summary.append(f"{analysis['functions']} function(s)")
         if analysis['classes']:
@@ -151,6 +151,7 @@ Summary: This code"""
 
     def _analyze_code_structure(self, lines: list, file_type: str) -> Dict:
         analysis = {'functions': 0, 'classes': 0, 'imports': 0, 'purpose': '', 'complexity': 'low'}
+        
         for line in lines:
             s = line.strip()
             if any(p in s for p in ['def ', 'function ', 'func ', 'fn ']):
@@ -160,6 +161,7 @@ Summary: This code"""
             if any(s.startswith(p) for p in ['import ', 'from ', '#include', 'require(', 'use ']):
                 analysis['imports'] += 1
 
+        # Look for purpose in comments
         for line in lines[:15]:
             s = line.strip()
             if any(s.startswith(p) for p in ['# ', '// ', '/* ', '* ', '"""', "'''"]):
@@ -170,6 +172,7 @@ Summary: This code"""
                     analysis['purpose'] = comment[:100] + ('...' if len(comment) > 100 else '')
                     break
 
+        # Determine complexity
         total = analysis['functions'] + analysis['classes']
         if total > 10:
             analysis['complexity'] = 'high'
@@ -194,3 +197,27 @@ Summary: This code"""
             'xml': 'XML', 'md': 'Markdown'
         }
         return type_map.get(ext, 'Code')
+
+# Example usage
+if __name__ == "__main__":
+    summarizer = CodeSummarizer()
+    
+    # Test with a sample code file
+    sample_code = '''
+def fibonacci(n):
+    """Calculate the nth Fibonacci number using recursion."""
+    if n <= 1:
+        return n
+    return fibonacci(n-1) + fibonacci(n-2)
+
+def main():
+    for i in range(10):
+        print(f"F({i}) = {fibonacci(i)}")
+
+if __name__ == "__main__":
+    main()
+    '''
+    
+    summary, usage = summarizer.summarize_code(sample_code, "fibonacci.py")
+    print(f"Summary: {summary}")
+    print(f"Usage: {usage}")
