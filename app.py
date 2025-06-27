@@ -1,4 +1,4 @@
-<<<<<<< HEAD
+
 from flask import Flask, render_template, request, jsonify, send_file
 import os
 from dotenv import load_dotenv
@@ -220,7 +220,7 @@ def usage_stats():
 if __name__ == '__main__':
     print("🌐 Server starting on http://127.0.0.1:5000")
     app.run(debug=True, host='0.0.0.0', port=5000)
-=======
+
 from flask import Flask, render_template, request, send_from_directory
 from document_generator import RepoDocumentGenerator
 import os
@@ -258,4 +258,4 @@ def download(filename):
 if __name__ == '__main__':
     os.makedirs(app.config['OUTPUT_DIR'], exist_ok=True)
     app.run(debug=True)
->>>>>>> 54089dd76f0f3700af83b8e07eecec5aebed2144
+
