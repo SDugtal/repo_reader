@@ -13,4 +13,6 @@ matplotlib==3.8.2
 seaborn==0.13.0
 plotly==5.18.0
 requests==2.31.0
+google-generativeai>=0.3.0
+python-dotenv>=1.0.0
 >>>>>>> 54089dd76f0f3700af83b8e07eecec5aebed2144

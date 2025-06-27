@@ -1,4 +1,3 @@
-<<<<<<< HEAD
 # GitHub Repo Reader
 
 A Flask web application that analyzes GitHub repositories using AI-powered code analysis and provides comprehensive insights about the codebase.
@@ -6,11 +5,12 @@ A Flask web application that analyzes GitHub repositories using AI-powered code 
 ## Features
 
 - 📊 **Repository Analysis**: Get detailed information about any public GitHub repository
-- 🤖 **AI-Powered Code Summarization**: Uses Hugging Face models to analyze and summarize code files
+- 🤖 **AI-Powered Code Summarization**: Uses Google's Gemini AI to analyze and summarize code files
 - 📈 **Commit History**: View recent commits and contributor activity
 - 👥 **Contributor Insights**: See top contributors and their contributions
 - 📄 **Export Reports**: Download analysis reports in Markdown or text format
 - 🎨 **Modern UI**: Clean, responsive interface built with Tailwind CSS
+- 🔄 **Smart Fallback**: Rule-based analysis when AI services are unavailable
 
 ## Installation
 
@@ -47,8 +47,20 @@ The application will be available at \`http://localhost:5000\`
 ## Environment Variables
 
 - \`GITHUB_TOKEN\`: GitHub personal access token (optional, for higher rate limits)
-- \`HUGGING_FACE_TOKEN\`: Hugging Face API token (optional, for AI features)
+- \`GEMINI_API_KEY\`: Google Gemini API key (required for AI features)
 - \`SECRET_KEY\`: Flask secret key for session management
+
+## Getting API Keys
+
+### GitHub Token (Optional)
+1. Go to [GitHub Settings > Developer settings > Personal access tokens](https://github.com/settings/tokens)
+2. Generate a new token with \`public_repo\` scope
+3. Add it to your \`.env\` file
+
+### Gemini API Key (Required for AI Features)
+1. Visit [Google AI Studio](https://makersuite.google.com/app/apikey)
+2. Create a new API key
+3. Add it to your \`.env\` file as \`GEMINI_API_KEY\`
 
 ## API Endpoints
 
@@ -63,95 +75,70 @@ The application will be available at \`http://localhost:5000\`
 2. Click "Analyze Repository"
 3. View the comprehensive analysis including:
    - Repository metadata and statistics
-   - AI-generated code summaries
+   - AI-generated code summaries powered by Gemini
    - Recent commit history
    - Top contributors
+   - Code complexity analysis
 4. Export the results as Markdown or document files
 
 ## AI Models Used
 
-- **Hugging Face Inference API**: For code summarization and analysis
+- **Google Gemini 1.5 Flash**: Primary model for code summarization and analysis
 - **Fallback Analysis**: Rule-based analysis when AI services are unavailable
+
+## Features in Detail
+
+### Code Analysis
+- Intelligent code summarization using Gemini AI
+- Support for 20+ programming languages
+- Function and class detection
+- Import and dependency analysis
+- Code complexity assessment
+
+### Repository Insights
+- Repository statistics and metadata
+- Contributor analysis and activity
+- Commit history and patterns
+- File structure analysis
+- Technology stack detection
+
+### Export Options
+- Markdown reports for documentation
+- Text summaries for quick reference
+- Structured data for further processing
 
 ## Rate Limits
 
-- GitHub API: 60 requests/hour (unauthenticated), 5000 requests/hour (with token)
-- Hugging Face API: Varies by model and account type
+- **GitHub API**: 60 requests/hour (unauthenticated), 5000 requests/hour (with token)
+- **Gemini API**: Varies by usage tier and account type
+
+## Supported File Types
+
+The application can analyze the following file types:
+- Python (.py)
+- JavaScript/TypeScript (.js, .ts, .jsx, .tsx)
+- Java (.java)
+- C/C++ (.c, .cpp, .h)
+- C# (.cs)
+- PHP (.php)
+- Ruby (.rb)
+- Go (.go)
+- Rust (.rs)
+- Swift (.swift)
+- Kotlin (.kt)
+- HTML/CSS (.html, .css, .scss)
+- SQL (.sql)
+- Shell scripts (.sh, .bash)
+- Configuration files (.yml, .yaml, .json, .xml)
+- Documentation (.md)
 
 ## Contributing
 
 1. Fork the repository
-2. Create a feature branch
+2. Create a feature branch (\`git checkout -b feature/amazing-feature\`)
 3. Make your changes
 4. Add tests if applicable
-5. Submit a pull request
+5. Commit your changes (\`git commit -m 'Add amazing feature'\`)
+6. Push to the branch (\`git push origin feature/amazing-feature\`)
+7. Submit a pull request
 
-## License
-
-This project is open source and available under the MIT License.
-=======
-# GitHub Repository Documenter
-
-An AI-powered tool for generating comprehensive documentation for GitHub repositories.
-
-## Features
-
-- **AI-Powered Analysis**: Leverages AI to analyze repository structure, code, and documentation
-- **Multiple Output Formats**: Generate documentation in Markdown, HTML, PDF, and DOCX formats
-- **Web Interface**: Clean, user-friendly Flask web application
-- **Repository Insights**: Extract key features, technology stack, and statistics
-- **Smart Recommendations**: AI-generated suggestions for repository improvements
-
-## Project Structure
-
-```
-github_repo_documenter/
-│── app.py                  # Flask web interface
-│── document_generator.py   # Core functionality (updated with AI)
-│── ai_helpers.py           # New AI integration module
-│── templates/              
-│   ├── index.html
-│   └── report.html
-│── static/                 
-│   ├── css/
-│   ├── js/
-│   └── charts/
-│── config.py               # Updated configuration
-│── requirements.txt        # Updated dependencies
-│── output/                 
-│   ├── repos_summary.md
-│   ├── repos_summary.pdf
-│   ├── repos_summary.html
-│   └── repos_summary.docx
-```
-
-## Installation
-
-1. Clone the repository
-2. Install dependencies:
-   ```bash
-   pip install -r requirements.txt
-   ```
-3. Copy `.env.example` to `.env` and configure your API keys
-4. Run the application:
-   ```bash
-   python app.py
-   ```
-
-## Usage
-
-1. Navigate to `http://localhost:5000`
-2. Enter a GitHub repository URL
-3. Select desired output formats
-4. Click "Generate Documentation"
-5. Download the generated files
-
-## Configuration
-
-Configure the application by setting environment variables in the `.env` file:
-
-- `GITHUB_TOKEN`: GitHub API token for higher rate limits
-- `OPENAI_API_KEY`: OpenAI API key for AI analysis
-- `ANTHROPIC_API_KEY`: Anthropic API key for AI analysis
-
->>>>>>> 54089dd76f0f3700af83b8e07eecec5aebed2144
